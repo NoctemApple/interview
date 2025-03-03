@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabs and Accordion Example</title>
+  <style>
+    /* Basic styling for both components */
+    .tabs-container, .accordion-container {
+      margin: 20px;
+    }
+
+    /* Tabs styles */
+    .nav-tabs {
+      list-style: none;
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0;
+      margin: 0;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .nav-tabs .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background-color: #e2e8f0;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+      margin-right: 5px;
+    }
+    .nav-tabs .tab:hover {
+      background-color: #d0d8e0;
+    }
+    .nav-tabs .tab.active {
+      background-color: #64758b; /* Active tab background */
+      color: #000; 
+      border: 1px solid #64758b;
+      border-bottom: 1px solid #64758b;
+    }
+    .tab-content .content {
+      display: none;
+      padding: 15px;
+      border: 1px solid #64758b;
+      background-color: #e2e8f0; /* Inside tab content color */
+    }
+    .tab-content .content.active {
+      display: block;
+    }
+
+    /* Accordion styles */
+    .accordion-header {
+      background-color: #e2e8f0;
+      color: #333;
+      border: 1px solid #64758b;
+      width: 100%;
+      text-align: left;
+      padding: 10px;
+      cursor: pointer;
+      outline: none;
+      transition: background-color 0.3s, color 0.3s;
+      margin-bottom: 5px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .accordion-header:hover {
+      background-color: #e2e8f0;
+    }
+    .accordion-header.active {
+      background-color: #64758b; /* Active accordion background */
+      color: #000; ;              /* Active accordion text */
+    }
+    .accordion-panel {
+      border: 1px solid #64758b;
+      border-top: #64758b;
+      padding: 10px;
+      display: none;
+      background-color: #e2e8f0; /* Inside accordion panel color */
+    }
+    .accordion-header.active + .accordion-panel {
+      display: block;
+    }
+
+    .accordion-header::after {
+    content: "";
+    float: right;
+    margin-top: 6px; /* Adjust to align vertically */
+    border: solid #333;
+    border-width: 0 4px 4px 0;
+    padding: 3px;
+    transform: rotate(45deg); /* Arrow pointing down */
+  }
+
+  .accordion-header.active::after {
+    transform: rotate(-135deg); /* Arrow pointing up */
+  }
+
+    /* Responsive behavior using media queries */
+    /* Show tabs on larger screens and hide accordion */
+    @media (min-width: 768px) {
+      .accordion-container { display: none; }
+      .tabs-container { display: block; }
+    }
+    /* Show accordion on smaller screens and hide tabs */
+    @media (max-width: 767px) {
+      .tabs-container { display: none; }
+      .accordion-container { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Tabs for Desktop -->
+  <div class="tabs-container">
+    <ul class="nav-tabs">
+      {% for section in sections %}
+        <li class="tab {% if forloop.first %}active{% endif %}" data-target="section{{ forloop.counter }}">
+          {{ section.title }}
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content">
+      {% for section in sections %}
+        <div id="section{{ forloop.counter }}" class="content {% if forloop.first %}active{% endif %}">
+          {{ section.content|safe }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Accordion for Mobile -->
+  <div class="accordion-container">
+    {% for section in sections %}
+      <div class="accordion-item">
+        <button class="accordion-header {% if forloop.first %}active{% endif %}" data-target="panel{{ forloop.counter }}">
+          {{ section.title }}
+        </button>
+        <div id="panel{{ forloop.counter }}" class="accordion-panel" {% if forloop.first %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+          {{ section.content|safe }}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- JavaScript for Tabs and Accordion Functionality -->
+  <script>
+    // Tabs logic
+    document.querySelectorAll('.nav-tabs .tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const targetId = this.dataset.target;
+        if (this.classList.contains('active')) {
+          // If active, close it
+          this.classList.remove('active');
+          document.getElementById(targetId).classList.remove('active');
+        } else {
+          // Close all tabs first
+          document.querySelectorAll('.nav-tabs .tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content .content').forEach(c => c.classList.remove('active'));
+          // Open the clicked tab
+          this.classList.add('active');
+          document.getElementById(targetId).classList.add('active');
+        }
+      });
+    });
+
+    // Accordion logic
+    document.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', function() {
+        const targetId = this.dataset.target;
+        if (this.classList.contains('active')) {
+          // If active, close it
+          this.classList.remove('active');
+          document.getElementById(targetId).style.display = 'none';
+        } else {
+          // Close all accordion sections first
+          document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('active'));
+          document.querySelectorAll('.accordion-panel').forEach(panel => panel.style.display = 'none');
+          // Open the clicked accordion section
+          this.classList.add('active');
+          document.getElementById(targetId).style.display = 'block';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
